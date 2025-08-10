@@ -15,9 +15,8 @@ import java.util.regex.Pattern;
 
 public class PlaceholderReplacingUtil {
     public static final KeyResolver<Entity> ENTITY_RESOLVER = (entity, subKey) -> switch (subKey) {
-        case "" -> entity.getName();
+        case "", "entityName" -> entity.getName();
         case "display" -> entity.getDisplayName();
-        case "entityName" -> Text.literal(entity.getEntityName());
         case "x" -> Utils.doubleToText(entity.getX());
         case "y" -> Utils.doubleToText(entity.getY());
         case "z" -> Utils.doubleToText(entity.getZ());

@@ -32,16 +32,16 @@ public class Utils {
 
     public static void message(ServerPlayerEntity player, Text msg, boolean broadcast) {
         if (!broadcast) {
-            player.sendSystemMessage(msg);
+            player.sendMessage(msg);
         } else {
             MinecraftServer server = player.getServer();
             if (server == null) {
                 return; // Shouldn't happen
             }
 
-            server.sendSystemMessage(msg);
+            server.sendMessage(msg);
             for (ServerPlayerEntity player1 : server.getPlayerManager().getPlayerList()) {
-                player1.sendSystemMessage(msg);
+                player1.sendMessage(msg);
             }
         }
     }

@@ -4,7 +4,6 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.context.CommandContext;
-import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.tree.CommandNode;
 import me.bymartrixx.playerevents.PlayerEvents;
 import me.bymartrixx.playerevents.mixin.CommandFunctionManagerAccessor;
@@ -31,6 +30,7 @@ import java.io.IOException;
 import java.util.Collection;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 import static me.bymartrixx.playerevents.util.PlaceholderReplacingUtil.lazyResolver;
 
@@ -160,16 +160,16 @@ public class PlayerEventsConfig {
 
         if (action.startsWith("/")) {
             String command = message.getString();
-            server.getCommandManager().executePrefixedCommand(server.getCommandSource(), command);
+            server.getCommandManager().executeWithPrefix(server.getCommandSource(), command);
         } else {
             Utils.message(player, message, broadcast);
         }
     }
 
     private static void executeFunctions(String id, MinecraftServer server) {
-        Identifier tag = new Identifier("player_events", id);
+        Identifier tag = Identifier.of("player_events", id);
         CommandFunctionManager commandFunctionManager = server.getCommandFunctionManager();
-        Collection<CommandFunction> functions = ((CommandFunctionManagerAccessor) commandFunctionManager).getFunctionLoader().getTagOrEmpty(tag);
+        List<CommandFunction<ServerCommandSource>> functions = ((CommandFunctionManagerAccessor) commandFunctionManager).getFunctionLoader().getTagOrEmpty(tag);
         ((CommandFunctionManagerAccessor) commandFunctionManager).invokeExecuteAll(functions, tag);
     }
 

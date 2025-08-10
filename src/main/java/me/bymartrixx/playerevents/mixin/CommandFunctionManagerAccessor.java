@@ -1,5 +1,6 @@
 package me.bymartrixx.playerevents.mixin;
 
+import net.minecraft.server.command.ServerCommandSource;
 import net.minecraft.server.function.CommandFunction;
 import net.minecraft.server.function.CommandFunctionManager;
 import net.minecraft.server.function.FunctionLoader;
@@ -10,11 +11,12 @@ import org.spongepowered.asm.mixin.gen.Invoker;
 
 import java.util.Collection;
 
+
 @Mixin(CommandFunctionManager.class)
 public interface CommandFunctionManagerAccessor {
     @Accessor("loader")
     FunctionLoader getFunctionLoader();
 
     @Invoker("executeAll")
-    void invokeExecuteAll(Collection<CommandFunction> functions, Identifier tag);
+    void invokeExecuteAll(Collection<CommandFunction<ServerCommandSource>> functions, Identifier label);
 }

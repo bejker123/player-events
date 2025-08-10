@@ -1,10 +1,6 @@
 plugins {
+    id 'fabric-loom' version '1.11-SNAPSHOT'
     id 'maven-publish'
-    id 'java-library'
-    alias libs.plugins.fabric.loom
-    alias libs.plugins.minotaur
-    alias libs.plugins.cursegradle
-    alias libs.plugins.loom.quiltflower
 }
 
 archivesBaseName = project.archives_base_name
@@ -15,18 +11,10 @@ version = !isBuild ? project.mod_version : "${project.mod_version}+build.${Syste
 
 allprojects {
     apply plugin: 'fabric-loom'
-    sourceCompatibility = JavaVersion.VERSION_17
-    targetCompatibility = JavaVersion.VERSION_17
+    sourceCompatibility = JavaVersion.VERSION_21
+    targetCompatibility = JavaVersion.VERSION_21
 
     repositories {
-        maven {
-            name = 'Quilt'
-            url = 'https://maven.quiltmc.org/repository/release'
-        }
-        maven {
-            name = 'Quilt Snapshots'
-            url = 'https://maven.quiltmc.org/repository/snapshot'
-        }
         maven {
             name 'FabricMC'
             url 'https://maven.fabricmc.net'
@@ -36,7 +24,7 @@ allprojects {
     dependencies {
         //to change the versions see the libs.versions.toml file
         minecraft libs.minecraft
-        mappings variantOf(libs.quilt.mappings) { classifier 'intermediary-v2' }
+        mappings "net.fabricmc:yarn:${project.yarn_mappings}:v2"
         modImplementation libs.fabric.loader
 
         modImplementation libs.fabric.api
@@ -57,7 +45,7 @@ allprojects {
         // If Javadoc is generated, this must be specified in that task too.
         it.options.encoding = 'UTF-8'
 
-        it.options.release = 17
+        it.options.release = 21
     }
 
     java {
@@ -71,10 +59,6 @@ allprojects {
         from('LICENSE') {
             rename { "${it}_${project.archivesBaseName}" }
         }
-    }
-    
-    quiltflower {
-        addToRuntimeClasspath.set(true)
     }
 }
 
@@ -119,44 +103,3 @@ publishing {
         mavenLocal()
     }
 }
-
-modrinth {
-    token = project.hasProperty('modrinth_token') ? project.property('modrinth_token') : System.getenv('MODRINTH_TOKEN')
-    projectId = 'NLx6lJPJ'
-    versionNumber = project.version
-    versionName = "Player Events ${project.version} for Minecraft 1.20.1"
-    uploadFile = remapJar
-    changelog = "A changelog can be found at https://github.com/ByMartrixx/player-events/releases/tag/${version}"
-    gameVersions = ['1.20.1']
-    loaders = ['fabric', 'quilt']
-    additionalFiles = [project(':api').remapJar]
-}
-
-curseforge {
-    if (project.hasProperty('curse_api_key') || System.getenv('CURSE_API_KEY') != null) {
-        apiKey = project.hasProperty('curse_api_key') ? project.property('curse_api_key') : System.getenv('CURSE_API_KEY')
-    }
-    project {
-        id = '404348'
-        changelog = "A changelog can be found at https://github.com/ByMartrixx/player-events/releases/tag/${version}"
-        releaseType = 'release'
-        addGameVersion '1.20.1'
-        addGameVersion 'Fabric'
-        addGameVersion 'Quilt'
-        mainArtifact(remapJar) {
-            displayName = "Player Events ${version} for Minecraft 1.20.1"
-        }
-        addArtifact(project(':api').remapJar) {
-            displayName = "Player Events API ${version} for Minecraft 1.20.1"
-        }
-        afterEvaluate {
-            uploadTask.dependsOn('remapJar')
-            uploadTask.dependsOn('api:remapJar')
-        }
-    }
-    options {
-        forgeGradleIntegration = false
-    }
-}
-
-publish.finalizedBy tasks.curseforge, tasks.modrinth, project(':api').tasks.publish
